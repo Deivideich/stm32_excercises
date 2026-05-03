@@ -18,7 +18,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-
+#include <string.h>
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
@@ -143,8 +143,10 @@ Error_Handler();
   MX_USART3_UART_Init();
   /* USER CODE BEGIN 2 */
   //uint8_t data_tx = 'a';
-  uint8_t data_rx;
-  // uint8_t data_rx_index = 0;
+  uint8_t uart_rx;
+  uint8_t data_rx[8];
+  uint8_t iterator = 0;
+  uint8_t data_rx_index = 0;
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -152,22 +154,29 @@ Error_Handler();
   while (1)
   {
 
-	if(HAL_UART_Receive(&huart3, &data_rx,1,1000) == HAL_OK){
-		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0,GPIO_PIN_SET);
+	if(HAL_UART_Receive(&huart3, &uart_rx,1,1000) == HAL_OK){
+		data_rx[iterator] = uart_rx;
+		iterator++;
+		HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_0);
 		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_14,GPIO_PIN_RESET);
+		if (iterator == sizeof(data_rx) || uart_rx == '1'){
+			HAL_UART_Transmit(&huart3, data_rx, iterator, 1000);
+			memset(&data_rx,0,sizeof(data_rx));
+			iterator = 0;
+		}
 	}
 	else{
 		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0,GPIO_PIN_RESET);
 		HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_14);
+
 	}
-
-
+}
+}
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-  }
   /* USER CODE END 3 */
-}
+
 
 /**
   * @brief System Clock Configuration

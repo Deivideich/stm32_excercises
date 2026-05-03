@@ -58,3 +58,5 @@
 ```
 
 - iIs possible to see the HAL function definitions in their compiled libraries, very useful for GPIO and peripheral operations
+- Reset arrays with memset(array, 0, sizeof(array))
+- It seems like arrays are treated like pointers by default when referencing their name
