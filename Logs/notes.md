@@ -111,3 +111,24 @@
 - Do not confuse logical operators with bitshift operatios (& and && are different)
 - sizeof does NOT measure the length of a string
 - strings have their own embedded functions within <string.h>, among them strlen to return the actual size of a string. Otherwise, by using sizeof it will always return 4 bytes since its the size of the point (32 bit architecture)
+- HAL_GetTick() function retrieves the current time in milliseconds since the mcu started operations
+- It is possible to let the MCU keep running while checking the time stamp of a signal with the current time, in other rods $curr\_time - start\_time > delay$
+- bools do not exist in C, instead bitshifting as bitwise operators are used to compare the state of a variable
+  ```
+		  past_state = curr_state;
+
+	  }
+
+  	  if(update_start_time == 0x01){
+  		time_start = HAL_GetTick();
+  	  }
+
+  	  if(HAL_GetTick() - time_start > delay_){
+  		  accept_input |= 0x01;
+  	  }
+  	  else{
+  		  accept_input &= 0x00;
+  	  }
+
+  	  update_start_time &= 0x00;
+  ```

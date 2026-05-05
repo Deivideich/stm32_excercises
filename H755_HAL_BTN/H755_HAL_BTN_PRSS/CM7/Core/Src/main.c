@@ -50,6 +50,8 @@
 /* USER CODE BEGIN PM */
 #define BTN_PRESSED (1<<0) // 0000 0001
 #define BTN_NOT_PRESSED (0<<0) // 0000 0000
+#define UPDATE_TIME (1<<0)
+#define NOT_UPDATE_TIME (0 << 0)
 #define BTN_PRESSED_MSG "BUTTON PRESSED"
 #define BTN_NOT_PRESSED_MSG "BUTTON NOT PRESSED"
 #define STATE_CHANGED_MSG "STATE CHANGED"
@@ -147,6 +149,10 @@ Error_Handler();
   MX_USART3_UART_Init();
   uint8_t curr_state = 0x00;
   uint8_t past_state = 0x00;
+  uint8_t update_start_time = 0x00;
+  uint8_t accept_input = 0x01;
+  uintmax_t time_start = 0;
+  uint16_t delay_ = 100; //100ms
   /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */
@@ -156,27 +162,61 @@ Error_Handler();
   while (1)
   {
 	  //Check the current pin state
-	  if(HAL_GPIO_ReadPin(USR_BTN_GPIO_Port,USR_BTN_Pin) == GPIO_PIN_SET){
-		  HAL_GPIO_WritePin(YELLOW_LED_GPIO_Port,YELLOW_LED_Pin,GPIO_PIN_SET);
-		  // Evaluate with or the bits from curr state and LED_ON with bit manipulation through OR
-		  curr_state = curr_state | BTN_PRESSED;
-	  }
-	  else if(HAL_GPIO_ReadPin(USR_BTN_GPIO_Port,USR_BTN_Pin) == GPIO_PIN_RESET){
-		  HAL_GPIO_WritePin(YELLOW_LED_GPIO_Port,YELLOW_LED_Pin,GPIO_PIN_RESET);
-		  // In case the button is not pressed we need to evaluate with AND the bits from the state mask, so they go to 0
-		  curr_state = curr_state & BTN_NOT_PRESSED;
+	  if (accept_input == 0x01){
+		  if(HAL_GPIO_ReadPin(USR_BTN_GPIO_Port,USR_BTN_Pin) == GPIO_PIN_SET){
+		  		  HAL_GPIO_WritePin(YELLOW_LED_GPIO_Port,YELLOW_LED_Pin,GPIO_PIN_SET);
+		  		  // Evaluate with or the bits from curr state and LED_ON with bit manipulation through OR
+		  		  curr_state = curr_state | BTN_PRESSED;
+		  	  }
+		  else if(HAL_GPIO_ReadPin(USR_BTN_GPIO_Port,USR_BTN_Pin) == GPIO_PIN_RESET){
+			  HAL_GPIO_WritePin(YELLOW_LED_GPIO_Port,YELLOW_LED_Pin,GPIO_PIN_RESET);
+			  // In case the button is not pressed we need to evaluate with AND the bits from the state mask, so they go to 0
+			  curr_state = curr_state & BTN_NOT_PRESSED;
+		  }
+
+		  //HAL_Delay(1);
+		  // When there is a change in state, we must wait before sending the transition in uart
+		  if(curr_state != past_state){
+			  HAL_GPIO_TogglePin(GPIOB,RED_LED_Pin);
+			  send_uart(STATE_CHANGED_MSG);
+			  update_start_time |= 0x01;
+			  if(curr_state == BTN_NOT_PRESSED){
+				  HAL_GPIO_WritePin(GPIOB,RED_LED_Pin,GPIO_PIN_RESET);
+				  send_uart(BTN_NOT_PRESSED_MSG);
+			  }
+			  else{
+				  HAL_GPIO_WritePin(GPIOB,RED_LED_Pin,GPIO_PIN_SET);
+				  send_uart(BTN_PRESSED_MSG);
+			  }
+		  }
+
+
+
+
+		  // Now the curr state must be compared with the previous state. If both states are the same, then no change has been made
+		  // if the current state is different from the previous one, then we toggle a led
+
+		  past_state = curr_state;
+
 	  }
 
-	  // Add a small delay to avoid bouncing switch through software
-	  HAL_Delay(50);
+  	  if(update_start_time == 0x01){
+  		time_start = HAL_GetTick();
+  	  }
+
+  	  if(HAL_GetTick() - time_start > delay_){
+  		  accept_input |= 0x01;
+  	  }
+  	  else{
+  		  accept_input &= 0x00;
+  	  }
+
+  	  update_start_time &= 0x00;
 
 	  // Now the curr state must be compared with the previous state. If both states are the same, then no change has been made
 	  // if the current state is different from the previous one, then we toggle a led
-	  if(curr_state != past_state){
-		  HAL_GPIO_TogglePin(GPIOB,RED_LED_Pin);
-		  send_uart(STATE_CHANGED_MSG);
-	  }
-	  past_state = curr_state;
+
+	  // past_state = curr_state;
 
 	  /*
 	  if(curr_state == BTN_NOT_PRESSED){
