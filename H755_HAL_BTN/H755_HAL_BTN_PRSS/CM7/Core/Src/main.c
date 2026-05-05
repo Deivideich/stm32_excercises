@@ -18,7 +18,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-
+#include <string.h>
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
@@ -50,6 +50,8 @@
 /* USER CODE BEGIN PM */
 #define BTN_PRESSED (1<<0) // 0000 0001
 #define BTN_NOT_PRESSED (0<<0) // 0000 0000
+#define BTN_PRESSED_MSG "BUTTON PRESSED"
+#define BTN_NOT_PRESSED_MSG "BUTTON NOT PRESSED"
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
@@ -66,7 +68,7 @@ static void MPU_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_USART3_UART_Init(void);
 /* USER CODE BEGIN PFP */
-
+void send_uart();
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -165,9 +167,11 @@ Error_Handler();
 
 	  if(curr_state == BTN_NOT_PRESSED){
 		  HAL_GPIO_WritePin(GPIOB,RED_LED_Pin,GPIO_PIN_RESET);
+		  send_uart(BTN_NOT_PRESSED_MSG);
 	  }
 	  else{
 		  HAL_GPIO_WritePin(GPIOB,RED_LED_Pin,GPIO_PIN_SET);
+		  send_uart(BTN_PRESSED_MSG);
 	  }
     /* USER CODE END WHILE */
 
@@ -324,7 +328,10 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-
+void send_uart(char *msg){
+	HAL_UART_Transmit(&huart3,(const uint8_t *) msg, strlen(msg),1000);
+	HAL_UART_Transmit(&huart3,(const uint8_t *) "\r\n", strlen("\r\n"),1000);
+}
 /* USER CODE END 4 */
 
  /* MPU Configuration */

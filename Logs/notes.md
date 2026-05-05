@@ -109,4 +109,5 @@
 - It is fundamental to put the string termination (ASCII 0) to identify the end of a string and use the string functions like strcmp
 - Even the integrated push buttons in the board are susceptible to noise due to the main processor speed while reading the button press
 - Do not confuse logical operators with bitshift operatios (& and && are different)
-- 
+- sizeof does NOT measure the length of a string
+- strings have their own embedded functions within <string.h>, among them strlen to return the actual size of a string. Otherwise, by using sizeof it will always return 4 bytes since its the size of the point (32 bit architecture)
