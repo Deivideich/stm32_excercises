@@ -153,7 +153,7 @@ Error_Handler();
   //uint8_t data_tx = 'a';
   uint8_t uart_rx;
   uint8_t data_rx[50];
-  uint8_t iterator = 0;
+  size_t iterator = 0;
 
   /* USER CODE END 2 */
 
