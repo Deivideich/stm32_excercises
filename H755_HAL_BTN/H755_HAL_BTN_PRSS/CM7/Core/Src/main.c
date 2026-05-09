@@ -144,7 +144,6 @@ Error_Handler();
 	MX_GPIO_Init();
 	MX_USART3_UART_Init();
 	button_init();
-
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -161,6 +160,9 @@ Error_Handler();
 	  }
 	  else if (event == BTN_EVENT_RELEASED){
 		  send_uart("BUTTON RELEASED");
+	  }
+	  else if (event == BTN_EVENT_BOUNCE_CHECK){
+		  send_uart("CHECKING BOUNCE");
 	  }
     /* USER CODE END WHILE */
 
