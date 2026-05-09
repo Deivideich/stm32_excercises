@@ -143,7 +143,7 @@ Error_Handler();
   /* USER CODE BEGIN 2 */
 	MX_GPIO_Init();
 	MX_USART3_UART_Init();
-
+	button_init();
 
   /* USER CODE END 2 */
 

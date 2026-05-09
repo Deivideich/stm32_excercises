@@ -20,6 +20,7 @@ typedef enum
     BTN_EVENT_RELEASED
 } button_event_t;
 
+void button_init(void);
 void button_update(void);
 
 button_event_t button_get_event(void);
