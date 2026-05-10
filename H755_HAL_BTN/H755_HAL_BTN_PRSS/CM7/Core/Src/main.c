@@ -23,6 +23,7 @@
 /* USER CODE BEGIN Includes */
 #include "button.h"
 #include "uart.h"
+#include "led.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -157,10 +158,14 @@ Error_Handler();
 	  if(event == BTN_EVENT_PRESSED)
 	  {
 	      send_uart("BUTTON PRESSED");
+	      led_toggle(GREEN_LED);
 	  }
 	  else if (event == BTN_EVENT_RELEASED){
 		  send_uart("BUTTON RELEASED");
 	  }
+//	  else{
+//		  led_toggle(YELLOW_LED);
+//	  }
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
